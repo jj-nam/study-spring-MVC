@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.joonzis.mapper.BoardMapper">
+	<select id="getListWithPaging" resultType="org.joonzis.domain.BoardVO">
+		<![CDATA[
+			select 
+				bno, title, content, writer, regdate, updatedate, replycnt 
+			from
+				(select /*+INDEX_DESC(tbl_board pk_board) */
+				rownum rn, bno, title, content, writer, regdate, updatedate, replycnt from tbl_board
+			where 
+				rownum <= #{pageNum} * #{amount})
+			where 
+				rn > (#{pageNum} -1) * #{amount}
+		]]>
+	</select>
+	
+	<insert id="insert" parameterType="org.joonzis.domain.BoardVO">
+		insert into tbl_board(bno, title, content, writer)
+		values(
+			seq_board.nextval,
+			#{title},
+			#{content},
+			#{writer}
+		)
+	</insert>
+	<select id="read" parameterType="long" resultType="org.joonzis.domain.BoardVO" >
+		select * from tbl_board where bno = #{bno}
+	</select>
+	
+	<delete id="delete" parameterType="long">
+		delete from tbl_board where bno = #{bno}
+	</delete>
+	
+	<update id="update" parameterType="org.joonzis.domain.BoardVO">
+		update tbl_board 
+		set 
+			title = #{title}, 
+			content = #{content},
+			writer = #{writer}, 
+			updatedate = SYSDATE
+		WHERE 
+			bno = #{bno}
+	</update>
+	
+	<select id="getTotalcount" resultType="int">
+		<![CDATA[
+		select count(*) from tbl_board where bno > 0 
+		]]>
+	</select>
+	
+	<update id="updateReplyCnt">
+		update tbl_board
+		set
+			replycnt = replycnt + #{amount}
+		where bno=#{bno}
+	</update>
+	
+	<select id="selectMax" resultType="long">
+		select max(bno) from tbl_board
+	</select>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.joonzis.mapper.MemberMapper">
+
+	<resultMap type="org.joonzis.domain.MemberVO" id="memberMap">
+		<!-- VO의 필드명과 column의 컬럼명 다를 경우 맞춰준다-->
+		<result property="userid" column="userid"/>
+		<result property="userpw" column="userpw"/>
+		<result property="username" column="username"/>
+		<result property="regdate" column="regdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<collection property="authList" resultMap="authMap"></collection> <!-- 아래 resultMap의 id값을 resultMap에 넣어 불러온다 -->
+	</resultMap>
+	
+	<resultMap type="org.joonzis.domain.AuthVO" id="authMap">
+		<result property="userid" column="userid"/>
+		<result property="auth" column="auth"/>
+	</resultMap>
+
+	<select id="read" resultMap="memberMap">
+		SELECT 
+			userid, userpw, username, enabled, regdate, updatedate, auth 
+		FROM 
+			tbl_member NATURAL JOIN tbl_member_auth 
+		WHERE 
+			userid=#{userid}
+	</select>
+	
+	
+</mapper>
